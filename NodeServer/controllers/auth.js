@@ -130,28 +130,29 @@ exports.forgetPassword = async (req, res) => {
       });
     }
 
-    const token = crypto.randomBytes(32).toString("hex");
+    // Generate a secure 6-digit numeric OTP
+    const otp = Math.floor(100000 + crypto.randomInt(900000)).toString();
 
-    user.resetToken = token;
+    // Store the OTP and set expiration (e.g., valid for 10 minutes)
+    user.resetToken = otp;
     user.resetTokenExpire = Date.now() + 10 * 60 * 1000;
 
     await user.save();
 
-    const resetUrl = `http://localhost:3000/reset-password/${token}`;
-
+    // Send the OTP via email instead of a web link
     await sendmail("forgetPassword", {
       email: user.email,
-      resetUrl,
+      otp: otp, // Pass the numeric OTP to your email template
     });
 
     return res.status(200).json({
       success: true,
-      message: "Reset link sent to email",
+      message: "OTP sent to your email successfully",
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Password reset failed",
+      message: "Failed to generate password reset OTP",
     });
   }
 };
@@ -201,6 +202,47 @@ exports.verifyOtp = async (req, res) => {
   // code
 };
 
-exports.updatePasswordWithOtp = async (req, res) => {
-  // code
+exports.forgetPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const hashedEmail = crypto
+      .createHash("sha256")
+      .update(email.toLowerCase())
+      .digest("hex");
+
+    const user = await User.findOne({ emailHash: hashedEmail });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "User does not exist",
+      });
+    }
+
+    // Generate a secure 6-digit numeric OTP
+    const otp = Math.floor(100000 + crypto.randomInt(900000)).toString();
+
+    // Store the OTP and set expiration (e.g., valid for 10 minutes)
+    user.resetToken = otp;
+    user.resetTokenExpire = Date.now() + 10 * 60 * 1000;
+
+    await user.save();
+
+    // Send the OTP via email instead of a web link
+    await sendmail("forgetPassword", {
+      email: user.email,
+      otp: otp, // Pass the numeric OTP to your email template
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP sent to your email successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to generate password reset OTP",
+    });
+  }
 };
