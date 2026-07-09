@@ -26,7 +26,7 @@ const validateSignup = [
     .withMessage("Password must be between 8 and 16 characters")
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])/)
     .withMessage(
-      "Password must include at least 1 uppercase, 1 lowercase, 1 number, and 1 special character"
+      "Password must include at least 1 uppercase, 1 lowercase, 1 number, and 1 special character",
     ),
   body("phone")
     .notEmpty()
@@ -80,7 +80,7 @@ const validateUpdatePasswordWithOtp = [
     .withMessage("Password must be between 8 and 16 characters")
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])/)
     .withMessage(
-      "Password must include at least 1 uppercase, 1 lowercase, 1 number, and 1 special character"
+      "Password must include at least 1 uppercase, 1 lowercase, 1 number, and 1 special character",
     ),
   body("confirmPassword")
     .custom((value, { req }) => value === req.body.password)
@@ -101,7 +101,7 @@ router.post(
   "/updatePasswordWithOtp",
   authLimiter,
   validateUpdatePasswordWithOtp,
-  updatePasswordWithOtp
+  updatePasswordWithOtp,
 );
 
 module.exports = router;

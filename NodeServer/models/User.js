@@ -40,6 +40,11 @@ const UserSchema = new mongoose.Schema(
       index: true,
       unique: true,
     },
+    phoneHash: {
+      type: String,
+      index: true,
+      unique: true,
+    },
     password: {
       type: String,
       required: [true, "Please provide a password"],
@@ -58,14 +63,12 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-
     earnedBadges: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Badge",
       },
     ],
-
     currentLiteracyLevel: {
       type: String,
       enum: ["Beginner", "Intermediate", "Advanced"],
@@ -82,7 +85,7 @@ const UserSchema = new mongoose.Schema(
     timestamps: true,
     toJSON: { getters: true },
     toObject: { getters: true },
-  }
+  },
 );
 
 // Pre-save hook to hash password
@@ -91,7 +94,6 @@ UserSchema.pre("save", async function (next) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
   }
-
   next();
 });
 
